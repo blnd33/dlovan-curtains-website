@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dlovan Parda — Admin Panel</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --gold: #C9A96E;
+      --gold-lt: #E4C99A;
+      --dark: #0f0f1a;
+      --dark2: #1a1a2e;
+      --dark3: #252540;
+      --sidebar-w: 240px;
+      --white: #fafafa;
+      --gray: #888;
+      --border: rgba(255,255,255,0.07);
+      --success: #4CAF50;
+      --danger: #e05555;
+    }
+
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; color: #333; }
+
+    /* ── LOGIN ── */
+    #login-screen {
+      position: fixed; inset: 0; background: var(--dark);
+      display: flex; align-items: center; justify-content: center; z-index: 9999;
+    }
+    #login-screen.hidden { display: none; }
+
+    .login-box {
+      background: var(--dark2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 3rem 2.5rem;
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+    }
+    .login-logo {
+      font-size: 1.4rem;
+      font-weight: 300;
+      color: var(--white);
+      letter-spacing: 0.15em;
+      margin-bottom: 0.3rem;
+    }
+    .login-logo span { color: var(--gold); }
+    .login-sub {
+      font-size: 0.72rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 2rem;
+    }
+    .login-box input {
+      width: 100%;
+      background: var(--dark3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      color: var(--white);
+      font-size: 0.95rem;
+      outline: none;
+      margin-bottom: 1rem;
+      transition: border-color 0.3s;
+    }
+    .login-box input:focus { border-color: var(--gold); }
+    .login-box button {
+      width: 100%;
+      background: var(--gold);
+      color: #1a1a1a;
+      border: none;
+      border-radius: 8px;
+      padding: 0.9rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .login-box button:hover { background: var(--gold-lt); }
+    .login-error {
+      color: var(--danger);
+      font-size: 0.82rem;
+      margin-top: 0.8rem;
+      display: none;
+    }
+
+    /* ── LAYOUT ── */
+    #app { display: none; min-height: 100vh; }
+    #app.visible { display: flex; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--dark2);
+      min-height: 100vh;
+      position: fixed;
+      top: 0; left: 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+    }
+
+    .sidebar-logo {
+      padding: 1.5rem 1.2rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-logo .s-name {
+      font-size: 1rem;
+      font-weight: 300;
+      color: var(--white);
+      letter-spacing: 0.1em;
+    }
+    .sidebar-logo .s-name span { color: var(--gold); }
+    .sidebar-logo .s-sub {
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-top: 0.15rem;
+    }
+
+    .sidebar-nav { flex: 1; padding: 1rem 0; }
+
+    .nav-section-title {
+      font-size: 0.58rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+      padding: 0.8rem 1.2rem 0.4rem;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.7rem 1.2rem;
+      color: rgba(255,255,255,0.55);
+      font-size: 0.85rem;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .nav-item i { width: 16px; text-align: center; font-size: 0.85rem; }
+    .nav-item:hover { color: var(--white); background: rgba(255,255,255,0.04); }
+    .nav-item.active {
+      color: var(--gold);
+      border-left-color: var(--gold);
+      background: rgba(201,169,110,0.08);
+    }
+
+    .sidebar-footer {
+      padding: 1rem 1.2rem;
+      border-top: 1px solid var(--border);
+    }
+    .btn-logout {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--gray);
+      font-size: 0.82rem;
+      cursor: pointer;
+      padding: 0.5rem 0;
+      transition: color 0.2s;
+      background: none;
+      border: none;
+      width: 100%;
+    }
+    .btn-logout:hover { color: var(--danger); }
+    .btn-view-site {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--gray);
+      font-size: 0.82rem;
+      cursor: pointer;
+      padding: 0.5rem 0;
+      text-decoration: none;
+      transition: color 0.2s;
+      margin-bottom: 0.5rem;
+    }
+    .btn-view-site:hover { color: var(--gold); }
+
+    /* ── MAIN ── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      padding: 2rem;
+      min-width: 0;
+    }
+
+    /* Top bar */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+    }
+    .topbar h1 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #1a1a2e;
+    }
+    .topbar .sub { font-size: 0.82rem; color: var(--gray); margin-top: 0.2rem; }
+
+    /* Save bar */
+    .save-bar {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 2rem;
+      display: flex;
+      gap: 0.7rem;
+      z-index: 200;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      border: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-gold { background: var(--gold); color: #1a1a1a; box-shadow: 0 4px 16px rgba(201,169,110,0.4); }
+    .btn-gold:hover { background: var(--gold-lt); transform: translateY(-1px); }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-danger:hover { background: #c94444; }
+    .btn-outline-dark {
+      background: transparent;
+      border: 1px solid #ddd;
+      color: #555;
+    }
+    .btn-outline-dark:hover { border-color: #aaa; color: #222; }
+
+    /* Section panel */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Cards */
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .card-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .card-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #f0f0f0;
+    }
+
+    /* Form elements */
+    .field {
+      margin-bottom: 1rem;
+    }
+    .field label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #666;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+    .field input[type="text"],
+    .field input[type="password"],
+    .field input[type="url"],
+    .field textarea,
+    .field select {
+      width: 100%;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+      color: #333;
+      background: #fafafa;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      font-family: inherit;
+    }
+    .field input:focus,
+    .field textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,169,110,0.15);
+      background: #fff;
+    }
+    .field textarea { resize: vertical; min-height: 90px; }
+
+    /* Two-column grid */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+
+    /* Image uploader */
+    .img-uploader {
+      border: 2px dashed #e0e0e0;
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      position: relative;
+    }
+    .img-uploader:hover { border-color: var(--gold); }
+    .img-uploader input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+    }
+    .img-preview {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 0.6rem;
+      display: block;
+    }
+    .img-preview.portrait { aspect-ratio: 4/5; }
+    .img-preview.square   { aspect-ratio: 1; }
+    .img-uploader .upload-hint {
+      font-size: 0.75rem;
+      color: var(--gray);
+      margin-top: 0.4rem;
+    }
+    .img-uploader .upload-icon {
+      font-size: 1.5rem;
+      color: #ccc;
+      margin-bottom: 0.4rem;
+    }
+
+    /* Item card (product/why/gallery grid) */
+    .item-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    .item-card {
+      background: #f8f8f8;
+      border-radius: 10px;
+      padding: 1rem;
+      border: 1px solid #ebebeb;
+    }
+    .item-card .ic-num {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 0.7rem;
+    }
+
+    /* Toast */
+    #admin-toast {
+      position: fixed;
+      bottom: 5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #1a1a2e;
+      color: #fff;
+      font-size: 0.88rem;
+      padding: 0.8rem 2rem;
+      border-radius: 100px;
+      border-left: 3px solid var(--gold);
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+      z-index: 9999;
+      white-space: nowrap;
+    }
+    #admin-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* Stats */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 1.2rem 1.5rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .stat-card .s-val {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--dark2);
+    }
+    .stat-card .s-lbl {
+      font-size: 0.72rem;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-top: 0.2rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .item-grid { grid-template-columns: 1fr 1fr; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .grid-3 { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 650px) {
+      :root { --sidebar-w: 0px; }
+      .sidebar { display: none; }
+      .main { margin-left: 0; padding: 1rem; }
+      .item-grid, .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ LOGIN SCREEN ══ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">Dlovan <span>Parda</span></div>
+    <div class="login-sub">Admin Panel</div>
+    <input type="password" id="pw-input" placeholder="Enter password" />
+    <button onclick="doLogin()"><i class="fas fa-lock"></i> &nbsp;Sign In</button>
+    <div class="login-error" id="login-error">Incorrect password. Try again.</div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="s-name">Dlovan <span>Parda</span></div>
+      <div class="s-sub">Admin Panel</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Overview</div>
+      <div class="nav-item active" data-panel="dashboard">
+        <i class="fas fa-chart-pie"></i> Dashboard
+      </div>
+
+      <div class="nav-section-title">Content</div>
+      <div class="nav-item" data-panel="hero">
+        <i class="fas fa-home"></i> Hero Section
+      </div>
+      <div class="nav-item" data-panel="products">
+        <i class="fas fa-th-large"></i> Products
+      </div>
+      <div class="nav-item" data-panel="about">
+        <i class="fas fa-store"></i> About
+      </div>
+      <div class="nav-item" data-panel="gallery">
+        <i class="fas fa-images"></i> Gallery
+      </div>
+      <div class="nav-item" data-panel="why">
+        <i class="fas fa-star"></i> Why Us
+      </div>
+      <div class="nav-item" data-panel="cta">
+        <i class="fas fa-bullhorn"></i> CTA Banner
+      </div>
+      <div class="nav-item" data-panel="contact">
+        <i class="fas fa-map-marker-alt"></i> Contact Info
+      </div>
+      <div class="nav-item" data-panel="footer">
+        <i class="fas fa-align-left"></i> Footer
+      </div>
+
+      <div class="nav-section-title">System</div>
+      <div class="nav-item" data-panel="settings">
+        <i class="fas fa-cog"></i> Settings
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="index.html" target="_blank" class="btn-view-site">
+        <i class="fas fa-external-link-alt"></i> View Website
+      </a>
+      <button class="btn-logout" onclick="doLogout()">
+        <i class="fas fa-sign-out-alt"></i> Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="topbar">
+        <div>
+          <h1>Dashboard</h1>
+          <div class="sub">Welcome back — manage your website content below</div>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="s-val">6</div>
+          <div class="s-lbl">Product Cards</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-val">6</div>
+          <div class="s-lbl">Gallery Photos</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-val">6</div>
+          <div class="s-lbl">Why Us Cards</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-val" id="dash-lang">EN + AR</div>
+          <div class="s-lbl">Languages</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><i class="fas fa-info-circle"></i> Quick Start</div>
+        <p style="font-size:0.9rem;color:#555;line-height:1.7;">
+          Use the sidebar to navigate to any section. Edit text or upload images, then click
+          <strong style="color:var(--gold)">Save Changes</strong> at the bottom right.
+          Changes appear instantly on your website for all visitors.
+        </p>
+        <br/>
+        <p style="font-size:0.85rem;color:#888;line-height:1.7;">
+          <strong>Images:</strong> You can paste an image URL <em>or</em> upload a photo from your computer.
+          Uploaded photos are stored in your browser — for cross-device access, use image URLs (e.g. from Google Drive, Dropbox, or your hosting).<br/>
+          <strong>Reset:</strong> Go to Settings to restore all content to the original defaults.
+        </p>
+      </div>
+    </div>
+
+    <!-- HERO -->
+    <div class="panel" id="panel-hero">
+      <div class="topbar"><div><h1>Hero Section</h1><div class="sub">The first thing visitors see</div></div></div>
+      <div class="card">
+        <div class="card-title"><i class="fas fa-image"></i> Hero Background Image</div>
+        <div class="field">
+          <label>Image URL (paste a link)</label>
+          <input type="url" id="hero-img-url" placeholder="https://..." />
+        </div>
+        <div class="field">
+          <label>— or — Upload from computer</label>
+          <div class="img-uploader">
+            <img id="hero-img-preview" class="img-preview" src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=900&q=80" />
+            <input type="file" accept="image/*" onchange="handleImgUpload(this,'hero-img-preview','hero-img-url','hero','bg')" />
+            <div class="upload-hint"><i class="fas fa-upload"></i> Click to upload a new photo</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><i class="fas fa-font"></i> Hero Text (English)</div>
+        <div class="grid-2">
+          <div class="field"><label>Badge Text</label><input type="text" id="hero-badge-en" /></div>
+          <div class="field"><label>Scroll Label</label><input type="text" id="hero-scroll-en" /></div>
+        </div>
+        <div class="field"><label>Main Title</label><input type="text" id="hero-title-en" /></div>
+        <div class="field"><label>Subtitle</label><textarea id="hero-sub-en"></textarea></div>
+        <div class="grid-2">
+          <div class="field"><label>Button 1</label><input type="text" id="hero-btn1-en" /></div>
+          <div class="field"><label>Button 2</label><input type="text" id="hero-btn2-en" /></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><i class="fas fa-language"></i> Hero Text (Arabic)</div>
+        <div style="direction:rtl">
+          <div class="grid-2">
+            <div class="field"><label>نص الشارة</label><input type="text" id="hero-badge-ar" dir="rtl" /></div>
+            <div class="field"><label>نص التمرير</label><input type="text" id="hero-scroll-ar" dir="rtl" /></div>
+          </div>
+          <div class="field"><label>العنوان الرئيسي</label><input type="text" id="hero-title-ar" dir="rtl" /></div>
+          <div class="field"><label>النص الفرعي</label><textarea id="hero-sub-ar" dir="rtl"></textarea></div>
+          <div class="grid-2">
+            <div class="field"><label>الزر الأول</label><input type="text" id="hero-btn1-ar" dir="rtl" /></div>
+            <div class="field"><label>الزر الثاني</label><input type="text" id="hero-btn2-ar" dir="rtl" /></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRODUCTS -->
+    <div class="panel" id="panel-products">
+      <div class="topbar"><div><h1>Products</h1><div class="sub">6 product cards</div></div></div>
+      <div class="card">
+        <div class="card-title"><i class="fas fa-th-large"></i> Product Cards</div>
+        <div class="item-grid" id="products-grid"></div>
+      </div>
+    </div>
+
+    <!-- ABOUT -->
+    <div class="panel" id="panel-about">
+      <div class="topbar"><div><h1>About Section</h1><div class="sub">Your story</div></div></div>
+      <div class="card">
+        <div class="card-title"><i class="fas fa-image"></i> About Image</div>
+        <div class="field"><label>Image URL</label><input type="url" id="about-img-url" placeholder="https://..." /></div>
+        <div class="field">
+          <label>Upload</label>
+          <div class="img-uploader">
+            <img id="about-img-preview" class="img-preview portrait" src="https://images.unsplash.com/photo-1616137422495-1e9e46e2aa1e?w=800&q=80" />
+            <input type="file" accept="image/*" onchange="handleImgUpload(this,'about-img-preview','about-img-url','about','img')" />
+            <div class="upload-hint"><i class="fas fa-upload"></i> Click to upload</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="fas fa-font"></i> About Text (English)</div>
+        <div class="field"><label>Paragraph 1</label><textarea id="about-p1-en"></textarea></div>
+        <div class="field"><label>Paragraph 2</label><textarea id="about-p2-en"></textarea></div>
+        <div class="grid-3">
+          <div class="field"><label>Stat 1 Label</label><input type="text" id="about-stat1-en" /></div>
+          <div class="field"><label>Stat 2 Label</label><input type="text" id="about-stat2-en" /></div>
+          <div class="field"><label>Stat 3 Label</label><input type="text" id="about-stat3-en" /></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="fas fa-language"></i> About Text (Arabic)</div>
+        <div style="direction:rtl">
+          <div class="field"><label>الفقرة الأولى</label><textarea id="about-p1-ar" dir="rtl"></textarea></div>
+          <div class="field"><label>الفقرة الثانية</label><textarea id="about-p2-ar" dir="rtl"></textarea></div>
+          <div class="grid-3">
+            <div class="field"><label>الإحصاء 1</label><input type="text" id="about-stat1-ar" dir="rtl" /></div>
+            <div class="field"><label>الإحصاء 2</label><input type="text" id="about-stat2-ar" dir="rtl" /></div>
+            <div class="field"><label>الإحصاء 3</label><input type="text" id="about-stat3-ar" dir="rtl" /></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GALLERY -->
+    <div class="panel" id="panel-gallery">
+      <div class="topbar"><div><h1>Gallery</h1><div class="sub">6 portfolio photos</div></div></div>
+      <div class="card">
+        <div class="card-title"><i class="fas fa-images"></i> Gallery Photos</div>
+        <div class="item-grid" id="gallery-grid"></div>
+      </div>
+    </div>
+
+    <!-- WHY -->
+    <div class="panel" id="panel-why">
+      <div class="topbar"><div><h1>Why Choose Us</h1><div class="sub">6 feature cards</div></div></div>
+      <div class="card">
+        <div class="card-title"><i class="fas fa-star"></i> Why Cards</div>
+        <div class="item-grid" id="why-grid"></div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="panel" id="panel-cta">
+      <div class="topbar"><div><h1>CTA Banner</h1><div class="sub">Call to action section</div></div></div>
+      <div class="card">
+        <div class="card-title"><i class="fas fa-image"></i> Background Image</div>
+        <div class="field"><label>Image URL</label><input type="url" id="cta-img-url" placeholder="https://..." /></div>
+        <div class="field">
+          <label>Upload</label>
+          <div class="img-uploader">
+            <img id="cta-img-preview" class="img-preview" src="https://images.unsplash.com/photo-1618219944342-824e40a13285?w=1600&q=80" />
+            <input type="file" accept="image/*" onchange="handleImgUpload(this,'cta-img-preview','cta-img-url','cta','bg')" />
+            <div class="upload-hint"><i class="fas fa-upload"></i> Click to upload</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="fas fa-font"></i> CTA Text (English)</div>
+        <div class="field"><label>Label</label><input type="text" id="cta-label-en" /></div>
+        <div class="field"><label>Title</label><input type="text" id="cta-title-en" /></div>
+        <div class="field"><label>Paragraph</label><textarea id="cta-p-en"></textarea></div>
+        <div class="field"><label>Button</label><input type="text" id="cta-btn-en" /></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="fas fa-language"></i> CTA Text (Arabic)</div>
+        <div style="direction:rtl">
+          <div class="field"><label>التسمية</label><input type="text" id="cta-label-ar" dir="rtl" /></div>
+          <div class="field"><label>العنوان</label><input type="text" id="cta-title-ar" dir="rtl" /></div>
+          <div class="field"><label>الفقرة</label><textarea id="cta-p-ar" dir="rtl"></textarea></div>
+          <div class="field"><label>الزر</label><input type="text" id="cta-btn-ar" dir="rtl" /></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACT -->
+    <div class="panel" id="panel-contact">
+      <div class="topbar"><div><h1>Contact Info</h1><div class="sub">Showroom details</div></div></div>
+      <div class="card">
+        <div class="card-title"><i class="fas fa-map-marker-alt"></i> Contact Details</div>
+        <div class="grid-2">
+          <div class="field"><label>Phone Number</label><input type="text" id="contact-phone" /></div>
+          <div class="field"><label>Email Address</label><input type="text" id="contact-email" /></div>
+        </div>
+        <div class="field"><label>WhatsApp Number (digits only, with country code)</label><input type="text" id="contact-wa-num" placeholder="9647500000000" /></div>
+        <div class="field"><label>Address (English)</label><input type="text" id="contact-addr-en" /></div>
+        <div class="field"><label>Address (Arabic)</label><input type="text" id="contact-addr-ar" dir="rtl" /></div>
+        <div class="field"><label>Opening Hours (English)</label><input type="text" id="contact-hours-en" /></div>
+        <div class="field"><label>Opening Hours (Arabic)</label><input type="text" id="contact-hours-ar" dir="rtl" /></div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="panel" id="panel-footer">
+      <div class="topbar"><div><h1>Footer</h1><div class="sub">Bottom section of the website</div></div></div>
+      <div class="card">
+        <div class="card-title"><i class="fas fa-align-left"></i> Footer About Text</div>
+        <div class="field"><label>English</label><textarea id="footer-about-en"></textarea></div>
+        <div class="field"><label>Arabic</label><textarea id="footer-about-ar" dir="rtl"></textarea></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="fas fa-link"></i> Social Links</div>
+        <div class="grid-2">
+          <div class="field"><label><i class="fab fa-instagram"></i> Instagram URL</label><input type="url" id="social-instagram" placeholder="https://instagram.com/..." /></div>
+          <div class="field"><label><i class="fab fa-facebook-f"></i> Facebook URL</label><input type="url" id="social-facebook" placeholder="https://facebook.com/..." /></div>
+          <div class="field"><label><i class="fab fa-tiktok"></i> TikTok URL</label><input type="url" id="social-tiktok" placeholder="https://tiktok.com/..." /></div>
+          <div class="field"><label><i class="fab fa-youtube"></i> YouTube URL</label><input type="url" id="social-youtube" placeholder="https://youtube.com/..." /></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="panel" id="panel-settings">
+      <div class="topbar"><div><h1>Settings</h1><div class="sub">System configuration</div></div></div>
+      <div class="card">
+        <div class="card-title"><i class="fas fa-lock"></i> Change Password</div>
+        <div class="grid-2">
+          <div class="field"><label>New Password</label><input type="password" id="new-pw" placeholder="Enter new password" /></div>
+          <div class="field"><label>Confirm Password</label><input type="password" id="confirm-pw" placeholder="Repeat new password" /></div>
+        </div>
+        <button class="btn btn-gold" onclick="changePassword()"><i class="fas fa-save"></i> Update Password</button>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="fas fa-undo"></i> Reset Content</div>
+        <p style="font-size:0.88rem;color:#666;margin-bottom:1rem;">
+          This will remove all your changes and restore the original default content. This cannot be undone.
+        </p>
+        <button class="btn btn-danger" onclick="resetAll()"><i class="fas fa-trash"></i> Reset All Content to Defaults</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Save bar -->
+<div class="save-bar" id="save-bar" style="display:none;">
+  <button class="btn btn-outline-dark" onclick="loadContent()"><i class="fas fa-undo"></i> Discard</button>
+  <button class="btn btn-gold" onclick="saveContent()"><i class="fas fa-save"></i> Save Changes</button>
+</div>
+
+<div id="admin-toast"></div>
+
+<script>
+/* ════════════════════════════
+   AUTH
+════════════════════════════ */
+const DEFAULT_PW = 'dlovan2025';
+
+function getPassword() {
+  return localStorage.getItem('dp-admin-pw') || DEFAULT_PW;
+}
+
+function doLogin() {
+  const pw = document.getElementById('pw-input').value;
+  if (pw === getPassword()) {
+    localStorage.setItem('dp-admin-auth', '1');
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('app').classList.add('visible');
+    document.getElementById('save-bar').style.display = 'flex';
+    init();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('pw-input').value = '';
+  }
+}
+
+function doLogout() {
+  localStorage.removeItem('dp-admin-auth');
+  location.reload();
+}
+
+function changePassword() {
+  const a = document.getElementById('new-pw').value;
+  const b = document.getElementById('confirm-pw').value;
+  if (!a) { showToast('Please enter a new password.', true); return; }
+  if (a !== b) { showToast('Passwords do not match.', true); return; }
+  localStorage.setItem('dp-admin-pw', a);
+  document.getElementById('new-pw').value = '';
+  document.getElementById('confirm-pw').value = '';
+  showToast('Password updated successfully!');
+}
+
+document.getElementById('pw-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+// Auto-login if session exists
+if (localStorage.getItem('dp-admin-auth') === '1') {
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('app').classList.add('visible');
+  document.getElementById('save-bar').style.display = 'flex';
+}
+
+
+/* ════════════════════════════
+   NAV
+════════════════════════════ */
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    item.classList.add('active');
+    document.getElementById('panel-' + item.dataset.panel).classList.add('active');
+    window.scrollTo(0, 0);
+  });
+});
+
+
+/* ════════════════════════════
+   DEFAULT CONTENT
+════════════════════════════ */
+const DEFAULTS = {
+  hero: {
+    bg: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=1800&q=85',
+    badge_en: 'Premium Curtain Showroom',
+    title_en: 'Elegant Curtains for Modern Homes',
+    sub_en:   'Premium curtains, accessories, and custom designs to transform your space into a sanctuary of style.',
+    btn1_en:  'Explore Collection',
+    btn2_en:  'Contact Us',
+    scroll_en:'Scroll',
+    badge_ar: 'معرض الستائر الفاخرة',
+    title_ar: 'ستائر أنيقة للمنازل العصرية',
+    sub_ar:   'ستائر فاخرة وإكسسوارات وتصاميم مخصصة لتحويل مساحتك إلى ملاذ من الأناقة.',
+    btn1_ar:  'استكشف المجموعة',
+    btn2_ar:  'تواصل معنا',
+    scroll_ar:'انتقل',
+  },
+  products: [
+    { img: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=700&q=80', tag_en:'Collection',  title_en:'Luxury Curtains',      tag_ar:'مجموعة',      title_ar:'ستائر فاخرة' },
+    { img: 'https://images.unsplash.com/photo-1615874694520-474822394e73?w=700&q=80', tag_en:'Sleep Better',title_en:'Blackout Curtains',    tag_ar:'نوم أفضل',    title_ar:'ستائر معتمة' },
+    { img: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=700&q=80',   tag_en:'Soft Light',  title_en:'Sheer Curtains',       tag_ar:'ضوء ناعم',    title_ar:'ستائر شفافة' },
+    { img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=700&q=80',   tag_en:'Hardware',    title_en:'Curtain Rods',         tag_ar:'إكسسوارات',   title_ar:'قضبان الستائر' },
+    { img: 'https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?w=700&q=80', tag_en:'Details',     title_en:'Curtain Accessories',  tag_ar:'تفاصيل',      title_ar:'إكسسوارات الستائر' },
+    { img: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=700&q=80', tag_en:'Bespoke',     title_en:'Custom Designs',       tag_ar:'حسب الطلب',   title_ar:'تصاميم مخصصة' },
+  ],
+  about: {
+    img:      'https://images.unsplash.com/photo-1616137422495-1e9e46e2aa1e?w=800&q=80',
+    p1_en:    'At Dlovan Parda, we believe that the right curtain can transform an ordinary room into an extraordinary experience. For over 15 years, we have been curating premium curtain solutions for homeowners, designers, and architects who demand nothing but the finest.',
+    p2_en:    'From our showroom, we offer personalised consultations, exact custom measurements, and professional installation — ensuring every project reflects your vision with uncompromising quality.',
+    stat1_en: 'Happy Clients',
+    stat2_en: 'Fabric Choices',
+    stat3_en: 'Custom Fit',
+    p1_ar:    'في دلوفان باردا، نؤمن بأن الستارة المناسبة تحوّل الغرفة العادية إلى تجربة استثنائية.',
+    p2_ar:    'من معرضنا، نقدم استشارات شخصية وقياسات مخصصة دقيقة وتركيباً احترافياً.',
+    stat1_ar: 'عميل سعيد',
+    stat2_ar: 'خيار قماش',
+    stat3_ar: 'مقاس مخصص',
+  },
+  gallery: [
+    'https://images.unsplash.com/photo-1618219740975-d40978bb7378?w=600&q=80',
+    'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80',
+    'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&q=80',
+    'https://images.unsplash.com/photo-1600210491892-03d54b6c5c9f?w=600&q=80',
+    'https://images.unsplash.com/photo-1560448075-cbc16bb4af8e?w=600&q=80',
+    'https://images.unsplash.com/photo-1616137422495-1e9e46e2aa1e?w=600&q=80',
+  ],
+  why: [
+    { title_en:'Premium Quality Fabrics',   desc_en:'We source only the finest fabrics from trusted European and regional mills.',        title_ar:'أقمشة فاخرة عالية الجودة', desc_ar:'نختار أجود الأقمشة من المصانع الموثوقة.' },
+    { title_en:'Custom Measurements',       desc_en:'Our specialists visit your home to take precise measurements.',                       title_ar:'قياسات مخصصة',             desc_ar:'يزور متخصصونا منزلك لأخذ قياسات دقيقة.' },
+    { title_en:'Professional Installation', desc_en:'Our trained team ensures clean fitting with zero damage to your walls.',              title_ar:'تركيب احترافي',            desc_ar:'فريقنا يضمن تثبيتاً نظيفاً وآمناً.' },
+    { title_en:'Modern & Classic Styles',   desc_en:'Our collection covers every aesthetic and interior vision.',                          title_ar:'أساليب عصرية وكلاسيكية',  desc_ar:'مجموعتنا تغطي كل ذوق ورؤية.' },
+    { title_en:'Affordable Luxury',         desc_en:'Our competitive pricing makes premium quality accessible without compromise.',        title_ar:'فخامة بأسعار مناسبة',     desc_ar:'أسعارنا تجعل الجودة الفاخرة في متناول الجميع.' },
+    { title_en:'Friendly Expert Service',   desc_en:'Our dedicated team guides you with warmth, expertise, and genuine care.',            title_ar:'خدمة احترافية ودودة',     desc_ar:'فريقنا يرافقك بحفاوة وخبرة حقيقية.' },
+  ],
+  cta: {
+    bg:       'https://images.unsplash.com/photo-1618219944342-824e40a13285?w=1600&q=80',
+    label_en: 'Transform Your Space',
+    title_en: 'Ready to Transform Your Home?',
+    p_en:     'Schedule a free, no-obligation consultation with our design experts.',
+    btn_en:   'Book a Consultation',
+    label_ar: 'حوّل مساحتك',
+    title_ar: 'هل أنت مستعد لتحويل منزلك؟',
+    p_ar:     'احجز استشارة مجانية بدون التزام مع خبراء التصميم لدينا.',
+    btn_ar:   'احجز استشارة',
+  },
+  contact: {
+    phone:    '+964 750 000 0000',
+    email:    'info@dlovanparda.com',
+    wa:       '9647500000000',
+    addr_en:  '123 Luxury Avenue, Erbil, Kurdistan Region, Iraq',
+    addr_ar:  'شارع الفخامة 123، أربيل، إقليم كردستان، العراق',
+    hours_en: 'Saturday – Thursday: 9:00 AM – 8:00 PM',
+    hours_ar: 'السبت – الخميس: 9:00 صباحاً – 8:00 مساءً',
+  },
+  footer: {
+    about_en: "Erbil's premier destination for luxury curtains, custom blinds, and professional curtain solutions. Bringing elegance to every window since 2009.",
+    about_ar: 'وجهتك المفضلة في أربيل للستائر الفاخرة والبلايند المخصص. نُضفي الأناقة على كل نافذة منذ عام 2009.',
+    instagram:'#',
+    facebook: '#',
+    tiktok:   '#',
+    youtube:  '#',
+  },
+};
+
+
+/* ════════════════════════════
+   CONTENT  LOAD / SAVE
+════════════════════════════ */
+function getContent() {
+  try {
+    const raw = localStorage.getItem('dp-content');
+    return raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(DEFAULTS));
+  } catch { return JSON.parse(JSON.stringify(DEFAULTS)); }
+}
+
+function loadContent() {
+  const c = getContent();
+
+  // HERO
+  setVal('hero-img-url',   c.hero.bg);
+  setVal('hero-badge-en',  c.hero.badge_en);
+  setVal('hero-title-en',  c.hero.title_en);
+  setVal('hero-sub-en',    c.hero.sub_en);
+  setVal('hero-btn1-en',   c.hero.btn1_en);
+  setVal('hero-btn2-en',   c.hero.btn2_en);
+  setVal('hero-scroll-en', c.hero.scroll_en);
+  setVal('hero-badge-ar',  c.hero.badge_ar);
+  setVal('hero-title-ar',  c.hero.title_ar);
+  setVal('hero-sub-ar',    c.hero.sub_ar);
+  setVal('hero-btn1-ar',   c.hero.btn1_ar);
+  setVal('hero-btn2-ar',   c.hero.btn2_ar);
+  setVal('hero-scroll-ar', c.hero.scroll_ar);
+  setPreview('hero-img-preview', c.hero.bg);
+
+  // PRODUCTS
+  buildProductsGrid(c.products);
+
+  // ABOUT
+  setVal('about-img-url',  c.about.img);
+  setPreview('about-img-preview', c.about.img);
+  setVal('about-p1-en',    c.about.p1_en);
+  setVal('about-p2-en',    c.about.p2_en);
+  setVal('about-stat1-en', c.about.stat1_en);
+  setVal('about-stat2-en', c.about.stat2_en);
+  setVal('about-stat3-en', c.about.stat3_en);
+  setVal('about-p1-ar',    c.about.p1_ar);
+  setVal('about-p2-ar',    c.about.p2_ar);
+  setVal('about-stat1-ar', c.about.stat1_ar);
+  setVal('about-stat2-ar', c.about.stat2_ar);
+  setVal('about-stat3-ar', c.about.stat3_ar);
+
+  // GALLERY
+  buildGalleryGrid(c.gallery);
+
+  // WHY
+  buildWhyGrid(c.why);
+
+  // CTA
+  setVal('cta-img-url',   c.cta.bg);
+  setPreview('cta-img-preview', c.cta.bg);
+  setVal('cta-label-en',  c.cta.label_en);
+  setVal('cta-title-en',  c.cta.title_en);
+  setVal('cta-p-en',      c.cta.p_en);
+  setVal('cta-btn-en',    c.cta.btn_en);
+  setVal('cta-label-ar',  c.cta.label_ar);
+  setVal('cta-title-ar',  c.cta.title_ar);
+  setVal('cta-p-ar',      c.cta.p_ar);
+  setVal('cta-btn-ar',    c.cta.btn_ar);
+
+  // CONTACT
+  setVal('contact-phone',    c.contact.phone);
+  setVal('contact-email',    c.contact.email);
+  setVal('contact-wa-num',   c.contact.wa);
+  setVal('contact-addr-en',  c.contact.addr_en);
+  setVal('contact-addr-ar',  c.contact.addr_ar);
+  setVal('contact-hours-en', c.contact.hours_en);
+  setVal('contact-hours-ar', c.contact.hours_ar);
+
+  // FOOTER
+  setVal('footer-about-en', c.footer.about_en);
+  setVal('footer-about-ar', c.footer.about_ar);
+  setVal('social-instagram', c.footer.instagram);
+  setVal('social-facebook',  c.footer.facebook);
+  setVal('social-tiktok',    c.footer.tiktok);
+  setVal('social-youtube',   c.footer.youtube);
+}
+
+function saveContent() {
+  const c = getContent();
+
+  // HERO
+  c.hero.bg        = getVal('hero-img-url')   || c.hero.bg;
+  c.hero.badge_en  = getVal('hero-badge-en');
+  c.hero.title_en  = getVal('hero-title-en');
+  c.hero.sub_en    = getVal('hero-sub-en');
+  c.hero.btn1_en   = getVal('hero-btn1-en');
+  c.hero.btn2_en   = getVal('hero-btn2-en');
+  c.hero.scroll_en = getVal('hero-scroll-en');
+  c.hero.badge_ar  = getVal('hero-badge-ar');
+  c.hero.title_ar  = getVal('hero-title-ar');
+  c.hero.sub_ar    = getVal('hero-sub-ar');
+  c.hero.btn1_ar   = getVal('hero-btn1-ar');
+  c.hero.btn2_ar   = getVal('hero-btn2-ar');
+  c.hero.scroll_ar = getVal('hero-scroll-ar');
+
+  // PRODUCTS
+  c.products.forEach((p, i) => {
+    p.img      = getVal(`prod-img-url-${i}`)  || p.img;
+    p.tag_en   = getVal(`prod-tag-en-${i}`);
+    p.title_en = getVal(`prod-title-en-${i}`);
+    p.tag_ar   = getVal(`prod-tag-ar-${i}`);
+    p.title_ar = getVal(`prod-title-ar-${i}`);
+  });
+
+  // ABOUT
+  c.about.img      = getVal('about-img-url') || c.about.img;
+  c.about.p1_en    = getVal('about-p1-en');
+  c.about.p2_en    = getVal('about-p2-en');
+  c.about.stat1_en = getVal('about-stat1-en');
+  c.about.stat2_en = getVal('about-stat2-en');
+  c.about.stat3_en = getVal('about-stat3-en');
+  c.about.p1_ar    = getVal('about-p1-ar');
+  c.about.p2_ar    = getVal('about-p2-ar');
+  c.about.stat1_ar = getVal('about-stat1-ar');
+  c.about.stat2_ar = getVal('about-stat2-ar');
+  c.about.stat3_ar = getVal('about-stat3-ar');
+
+  // GALLERY
+  c.gallery.forEach((_, i) => {
+    const url = getVal(`gallery-url-${i}`);
+    if (url) c.gallery[i] = url;
+  });
+
+  // WHY
+  c.why.forEach((w, i) => {
+    w.title_en = getVal(`why-title-en-${i}`);
+    w.desc_en  = getVal(`why-desc-en-${i}`);
+    w.title_ar = getVal(`why-title-ar-${i}`);
+    w.desc_ar  = getVal(`why-desc-ar-${i}`);
+  });
+
+  // CTA
+  c.cta.bg       = getVal('cta-img-url') || c.cta.bg;
+  c.cta.label_en = getVal('cta-label-en');
+  c.cta.title_en = getVal('cta-title-en');
+  c.cta.p_en     = getVal('cta-p-en');
+  c.cta.btn_en   = getVal('cta-btn-en');
+  c.cta.label_ar = getVal('cta-label-ar');
+  c.cta.title_ar = getVal('cta-title-ar');
+  c.cta.p_ar     = getVal('cta-p-ar');
+  c.cta.btn_ar   = getVal('cta-btn-ar');
+
+  // CONTACT
+  c.contact.phone    = getVal('contact-phone');
+  c.contact.email    = getVal('contact-email');
+  c.contact.wa       = getVal('contact-wa-num');
+  c.contact.addr_en  = getVal('contact-addr-en');
+  c.contact.addr_ar  = getVal('contact-addr-ar');
+  c.contact.hours_en = getVal('contact-hours-en');
+  c.contact.hours_ar = getVal('contact-hours-ar');
+
+  // FOOTER
+  c.footer.about_en  = getVal('footer-about-en');
+  c.footer.about_ar  = getVal('footer-about-ar');
+  c.footer.instagram = getVal('social-instagram');
+  c.footer.facebook  = getVal('social-facebook');
+  c.footer.tiktok    = getVal('social-tiktok');
+  c.footer.youtube   = getVal('social-youtube');
+
+  try {
+    localStorage.setItem('dp-content', JSON.stringify(c));
+    showToast('Changes saved! Your website has been updated.');
+  } catch (e) {
+    showToast('Storage full — try using image URLs instead of uploads.', true);
+  }
+}
+
+function resetAll() {
+  if (!confirm('Reset ALL content to factory defaults? This cannot be undone.')) return;
+  localStorage.removeItem('dp-content');
+  loadContent();
+  showToast('Content reset to defaults.');
+}
+
+
+/* ════════════════════════════
+   GRID BUILDERS
+════════════════════════════ */
+function buildProductsGrid(products) {
+  const grid = document.getElementById('products-grid');
+  grid.innerHTML = products.map((p, i) => `
+    <div class="item-card">
+      <div class="ic-num">Card ${i + 1}</div>
+      <div class="img-uploader" style="margin-bottom:0.8rem;">
+        <img id="prod-img-preview-${i}" class="img-preview square"
+             src="${escHtml(p.img)}" style="aspect-ratio:4/3;" />
+        <input type="file" accept="image/*"
+               onchange="handleImgUpload(this,'prod-img-preview-${i}','prod-img-url-${i}','products','${i}')" />
+        <div class="upload-hint"><i class="fas fa-upload"></i> Upload</div>
+      </div>
+      <input type="hidden" id="prod-img-url-${i}" value="${escHtml(p.img)}" />
+      <div class="field"><label>Tag (EN)</label><input type="text" id="prod-tag-en-${i}" value="${escHtml(p.tag_en)}" /></div>
+      <div class="field"><label>Title (EN)</label><input type="text" id="prod-title-en-${i}" value="${escHtml(p.title_en)}" /></div>
+      <div class="field"><label>الوسم (AR)</label><input type="text" id="prod-tag-ar-${i}" value="${escHtml(p.tag_ar)}" dir="rtl" /></div>
+      <div class="field"><label>العنوان (AR)</label><input type="text" id="prod-title-ar-${i}" value="${escHtml(p.title_ar)}" dir="rtl" /></div>
+    </div>
+  `).join('');
+}
+
+function buildGalleryGrid(gallery) {
+  const grid = document.getElementById('gallery-grid');
+  grid.innerHTML = gallery.map((url, i) => `
+    <div class="item-card">
+      <div class="ic-num">Photo ${i + 1}</div>
+      <div class="img-uploader" style="margin-bottom:0.8rem;">
+        <img id="gallery-preview-${i}" class="img-preview" src="${escHtml(url)}" />
+        <input type="file" accept="image/*"
+               onchange="handleImgUpload(this,'gallery-preview-${i}','gallery-url-${i}','gallery','${i}')" />
+        <div class="upload-hint"><i class="fas fa-upload"></i> Upload new photo</div>
+      </div>
+      <div class="field">
+        <label>Image URL</label>
+        <input type="url" id="gallery-url-${i}" value="${escHtml(url)}" placeholder="https://..." />
+      </div>
+    </div>
+  `).join('');
+
+  // sync URL input → preview
+  gallery.forEach((_, i) => {
+    const input = document.getElementById(`gallery-url-${i}`);
+    if (input) input.addEventListener('input', () => {
+      setPreview(`gallery-preview-${i}`, input.value);
+    });
+  });
+}
+
+function buildWhyGrid(why) {
+  const grid = document.getElementById('why-grid');
+  grid.innerHTML = why.map((w, i) => `
+    <div class="item-card">
+      <div class="ic-num">Card ${i + 1}</div>
+      <div class="field"><label>Title (EN)</label><input type="text" id="why-title-en-${i}" value="${escHtml(w.title_en)}" /></div>
+      <div class="field"><label>Description (EN)</label><textarea id="why-desc-en-${i}">${escHtml(w.desc_en)}</textarea></div>
+      <div class="field"><label>العنوان (AR)</label><input type="text" id="why-title-ar-${i}" value="${escHtml(w.title_ar)}" dir="rtl" /></div>
+      <div class="field"><label>الوصف (AR)</label><textarea id="why-desc-ar-${i}" dir="rtl">${escHtml(w.desc_ar)}</textarea></div>
+    </div>
+  `).join('');
+}
+
+
+/* ════════════════════════════
+   IMAGE UPLOAD
+════════════════════════════ */
+function handleImgUpload(input, previewId, urlInputId, section, key) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const dataUrl = e.target.result;
+    setPreview(previewId, dataUrl);
+    const urlInput = document.getElementById(urlInputId);
+    if (urlInput) urlInput.value = dataUrl;
+  };
+  reader.readAsDataURL(file);
+}
+
+// Sync hero/cta URL inputs to their previews
+['hero-img-url','about-img-url','cta-img-url'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', function() {
+    const previewMap = {'hero-img-url':'hero-img-preview','about-img-url':'about-img-preview','cta-img-url':'cta-img-preview'};
+    setPreview(previewMap[id], this.value);
+  });
+});
+
+
+/* ════════════════════════════
+   HELPERS
+════════════════════════════ */
+function setVal(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.value = val || '';
+}
+function getVal(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+function setPreview(id, src) {
+  const el = document.getElementById(id);
+  if (el && src) el.src = src;
+}
+function escHtml(str) {
+  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg, isError = false) {
+  const t = document.getElementById('admin-toast');
+  t.textContent = msg;
+  t.style.borderLeftColor = isError ? '#e05555' : 'var(--gold)';
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+
+/* ════════════════════════════
+   INIT
+════════════════════════════ */
+function init() {
+  try { loadContent(); } catch(e) { console.error('Admin init error:', e); }
+}
+
+// Show app immediately if already authenticated (wait for DOM to be ready)
+document.addEventListener('DOMContentLoaded', () => {
+  if (localStorage.getItem('dp-admin-auth') === '1') {
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('app').classList.add('visible');
+    document.getElementById('save-bar').style.display = 'flex';
+    init();
+  }
+});
+</script>
+</body>
+</html>
