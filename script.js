@@ -459,25 +459,22 @@ function switchLang() {
   }
 
   function openCurtains() {
+    // Show hero content immediately so it's visible as curtains slide open
+    if (heroContent) heroContent.classList.add('visible');
+
     setTimeout(() => {
       document.body.classList.add('curtains-open');
 
+      // Fade out the overlay smoothly after curtains finish opening
       setTimeout(() => {
         if (overlay) {
-          overlay.style.transition = 'opacity 3s ease';
-          overlay.style.opacity    = '0';
+          overlay.style.transition = 'opacity 0.6s ease';
+          overlay.style.opacity = '0';
+          setTimeout(() => { overlay.style.display = 'none'; }, 650);
         }
-      }, 3000);
+      }, 1900);
 
-      setTimeout(() => {
-        if (heroContent) heroContent.classList.add('visible');
-      }, 5500);
-
-      setTimeout(() => {
-        if (overlay) overlay.style.display = 'none';
-      }, 7500);
-
-    }, 1200);
+    }, 400);
   }
 
   if (document.readyState === 'complete') {

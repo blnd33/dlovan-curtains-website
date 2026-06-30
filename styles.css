@@ -70,8 +70,7 @@ button {
   z-index: 9999;
   pointer-events: all;
   overflow: hidden;
-  /* dim backdrop behind the curtain panels */
-  background: #0c0705;
+  background: transparent;
 }
 
 /* ── Curtain rod ── */
@@ -80,16 +79,16 @@ button {
   top: 0;
   left: 0;
   right: 0;
-  height: 18px;
+  height: 22px;
   z-index: 10003;
   background: linear-gradient(180deg,
-    #f5e080 0%,
-    #d4a84b 20%,
-    #b8892e 45%,
-    #d4a84b 70%,
-    #f5e080 100%
+    #d0d8d4 0%,
+    #8a9e98 20%,
+    #5a706a 45%,
+    #8a9e98 70%,
+    #d0d8d4 100%
   );
-  box-shadow: 0 6px 24px rgba(0,0,0,0.85), inset 0 1px 3px rgba(255,230,120,0.5);
+  box-shadow: 0 6px 28px rgba(0,0,0,0.9), inset 0 1px 3px rgba(220,240,235,0.4);
 }
 
 /* Finials (round ends of the rod) */
@@ -97,11 +96,11 @@ button {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: radial-gradient(circle at 38% 32%, #f8e898, #c9922a 55%, #7a5010);
-  box-shadow: 0 4px 14px rgba(0,0,0,0.7), inset 0 2px 4px rgba(255,230,100,0.4);
+  background: radial-gradient(circle at 38% 32%, #e8f0ee, #6a8880 55%, #2a3e3a);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.8), inset 0 2px 4px rgba(200,230,225,0.35);
   z-index: 10004;
 }
 .c-finial.fl { left:  -10px; }
@@ -116,7 +115,7 @@ button {
   display: flex;
   flex-direction: column;
   z-index: 10001;
-  transition: transform 6s cubic-bezier(0.77, 0, 0.18, 1);
+  transition: transform 2s cubic-bezier(0.77, 0, 0.18, 1);
   will-change: transform;
   overflow: visible;
 }
@@ -142,9 +141,9 @@ button {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  border: 3px solid #c9a96e;
-  background: radial-gradient(circle at 38% 32%, #f8e898, #9a6820 65%, #5a3a08);
-  box-shadow: 0 3px 8px rgba(0,0,0,0.65), inset 0 1px 2px rgba(255,220,80,0.35);
+  border: 3px solid #7a9e98;
+  background: radial-gradient(circle at 38% 32%, #d8eae6, #5a807a 65%, #1a2e2a);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.7), inset 0 1px 2px rgba(200,230,225,0.3);
   flex-shrink: 0;
   margin: 0 clamp(5px, 1.8%, 14px);
   position: relative;
@@ -159,7 +158,7 @@ button {
   transform: translateX(-50%);
   width: 2px;
   height: 8px;
-  background: linear-gradient(180deg, #c9a96e, #7a5010);
+  background: linear-gradient(180deg, #7a9e98, #2a3e3a);
 }
 
 /* ── Pleated fabric body ── */
@@ -177,38 +176,38 @@ button {
   flex: 1;
   height: 100%;
   position: relative;
-  transition: flex 5s cubic-bezier(0.77, 0, 0.18, 1);
+  transition: flex 1.8s cubic-bezier(0.77, 0, 0.18, 1);
 }
 
-/* Base fabric colour per pleat */
+/* Base fabric colour per pleat — deep forest #1a2421 velvet */
 .c-pleat:nth-child(odd) {
   background: linear-gradient(90deg,
-    #1c0c04 0%,
-    #3a1a0a 8%,
-    #6b3a1e 22%,
-    #a06030 42%,
-    #b87840 50%,
-    #a06030 58%,
-    #6b3a1e 78%,
-    #3a1a0a 92%,
-    #1c0c04 100%
+    #080e0d 0%,
+    #0f1a18 8%,
+    #1a2421 22%,
+    #2e4440 42%,
+    #3e5e58 50%,
+    #2e4440 58%,
+    #1a2421 78%,
+    #0f1a18 92%,
+    #080e0d 100%
   );
 }
 .c-pleat:nth-child(even) {
   background: linear-gradient(90deg,
-    #160a02 0%,
-    #32160a 10%,
-    #5c2e16 25%,
-    #8a4c28 43%,
-    #9e5e30 50%,
-    #8a4c28 57%,
-    #5c2e16 75%,
-    #32160a 90%,
-    #160a02 100%
+    #060c0b 0%,
+    #0d1816 10%,
+    #16201e 25%,
+    #283c38 43%,
+    #345450 50%,
+    #283c38 57%,
+    #16201e 75%,
+    #0d1816 90%,
+    #060c0b 100%
   );
 }
 
-/* Fabric sheen — broad light catch across the whole panel */
+/* Fabric sheen — subtle cool light catch for velvet effect */
 .c-pleats::before {
   content: '';
   position: absolute;
@@ -216,11 +215,11 @@ button {
   pointer-events: none;
   z-index: 1;
   background: linear-gradient(110deg,
-    rgba(255,220,140,0.13) 0%,
-    rgba(255,210,100,0.06) 25%,
-    transparent 50%,
-    rgba(0,0,0,0.12) 75%,
-    rgba(0,0,0,0.22) 100%
+    rgba(180,230,220,0.14) 0%,
+    rgba(160,210,200,0.07) 30%,
+    transparent 55%,
+    rgba(0,0,0,0.20) 78%,
+    rgba(0,0,0,0.35) 100%
   );
 }
 
@@ -267,21 +266,21 @@ button {
   height: 100%;
 }
 
-/* Gold inner-edge trim */
+/* Silver inner-edge trim */
 .c-inner-trim {
   position: absolute;
-  top: 18px;
+  top: 22px;
   bottom: 0;
   width: 5px;
   z-index: 5;
   background: linear-gradient(180deg,
-    #f5e080 0%,
-    #c9a96e 20%,
-    #a07840 50%,
-    #c9a96e 80%,
-    #f5e080 100%
+    #c8d8d4 0%,
+    #8aaea8 20%,
+    #5a7874 50%,
+    #8aaea8 80%,
+    #c8d8d4 100%
   );
-  box-shadow: 0 0 14px rgba(201,169,110,0.55);
+  box-shadow: 0 0 14px rgba(130,180,170,0.4);
 }
 
 .c-left  .c-inner-trim { right: 0; }
