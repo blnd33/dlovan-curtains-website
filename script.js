@@ -188,7 +188,7 @@ function applyAdminContent(c) {
 /* ── TRANSLATIONS ─────────────────── */
 const translations = {
   en: {
-    'curtain-sub':      'Luxury Curtain Specialists',
+    'intro-skip':       'Skip',
     'nav-home':         'Home',
     'nav-products':     'Products',
     'nav-curtains':     'Curtains',
@@ -291,7 +291,7 @@ const translations = {
     'form-sent-btn':    'Message Sent ✓',
   },
   ar: {
-    'curtain-sub':      'متخصصون في الستائر الفاخرة',
+    'intro-skip':       'تخطي',
     'nav-home':         'الرئيسية',
     'nav-products':     'المنتجات',
     'nav-curtains':     'الستائر',
@@ -443,13 +443,14 @@ function applyLang(lang) {
 function switchLang() {
   applyLang(currentLang === 'en' ? 'ar' : 'en');
 }
-
-
 /* ════════════════════════════════
-   CURTAIN ANIMATION — runs independently, never blocked by lang/content code
+   INTRO — the curtain film plays full frame with the brand lockup over it,
+   then the overlay fades to the site when the film ends.
+   Runs independently, never blocked by lang/content code.
 ════════════════════════════════ */
-(function initCurtain() {
-  const overlay     = document.getElementById('curtain-overlay');
+(function initIntro() {
+  const intro       = document.getElementById('intro');
+  const skipBtn     = document.getElementById('intro-skip');
   const heroContent = document.getElementById('hero-content');
   const hero        = document.getElementById('hero');
 
@@ -458,31 +459,110 @@ function switchLang() {
     hero.classList.add('loaded');
   }
 
-  function openCurtains() {
-    // Show hero content immediately so it's visible as curtains slide open
+  if (!intro) {
     if (heroContent) heroContent.classList.add('visible');
+    return;
+  }
 
-    setTimeout(() => {
-      document.body.classList.add('curtains-open');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const timers = [];
+  let revealed = false;
+  let finished = false;
 
-      // Fade out the overlay smoothly after curtains finish opening
-      setTimeout(() => {
-        if (overlay) {
-          overlay.style.transition = 'opacity 0.6s ease';
-          overlay.style.opacity = '0';
-          setTimeout(() => { overlay.style.display = 'none'; }, 650);
-        }
-      }, 1900);
+  const after = (ms, fn) => timers.push(setTimeout(fn, ms));
 
-    }, 400);
+  // How long the lockup takes to dissolve — kept in step with the CSS
+  const LOCKUP_FADE_MS = 900;
+
+  // The lockup dissolves, and the hand-off is chained straight off the end of
+  // that fade — so the moment the logo is gone, the site is arriving.
+  function fadeLockup() {
+    if (revealed) return;
+    revealed = true;
+    intro.classList.add('intro-reveal');
+
+    const brand = intro.querySelector('.intro-brand');
+    const handOver = () => finish();
+
+    if (brand) {
+      brand.addEventListener('transitionend', function onFaded(e) {
+        if (e.propertyName !== 'opacity') return;
+        brand.removeEventListener('transitionend', onFaded);
+        handOver();
+      });
+    }
+    // fallback in case transitionend never fires (interrupted, or no support)
+    after(LOCKUP_FADE_MS + 60, handOver);
+  }
+
+  // Fades the overlay away to reveal the site
+  function finish() {
+    if (finished) return;
+    finished = true;
+    timers.forEach(clearTimeout);
+    // on a skip the lockup may still be up — take it down with the overlay
+    revealed = true;
+    intro.classList.add('intro-reveal');
+    if (heroContent) heroContent.classList.add('visible');
+    intro.classList.add('intro-done');
+    document.body.classList.remove('intro-active');
+    setTimeout(() => { intro.style.display = 'none'; }, 1200);
+  }
+
+  // ── Skip affordances ──
+  skipBtn?.addEventListener('click', finish);
+  intro.addEventListener('click', (e) => { if (e.target !== skipBtn) finish(); });
+  document.addEventListener('keydown', function onKey(e) {
+    if (finished) return;
+    if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
+      finish();
+      document.removeEventListener('keydown', onKey);
+    }
+  });
+
+  function start() {
+    document.body.classList.add('intro-active');
+
+    const video = document.getElementById('intro-video');
+
+    if (reducedMotion || !video) {
+      after(600, finish);
+      return;
+    }
+
+    // Run the film a little hot so the entrance lands sooner
+    video.playbackRate = 1.5;
+
+    // Start the camera push once the starting transform is resolved. A timer
+    // rather than rAF, so it still fires if the tab loads in the background.
+    after(60, () => intro.classList.add('intro-rolling'));
+
+    // The lockup holds, then dissolves — and the hand-off follows straight
+    // off the end of that fade, so the site is there as the logo clears.
+    after(1400, fadeLockup);
+
+    // If the film runs short, start the same sequence rather than waiting
+    video.addEventListener('ended', fadeLockup);
+
+    // If autoplay is refused or the codec is unsupported, the poster still
+    // shows — hand over on a timer instead of stalling on a frozen frame.
+    video.addEventListener('error', () => after(1200, fadeLockup), { once: true });
+    const played = video.play();
+    if (played && typeof played.catch === 'function') {
+      played.catch(() => after(1800, fadeLockup));
+    }
+
+    // Safety net: never trap the visitor behind the intro
+    after(7000, finish);
   }
 
   if (document.readyState === 'complete') {
-    openCurtains();
+    start();
   } else {
-    window.addEventListener('load', openCurtains, { once: true });
+    window.addEventListener('load', start, { once: true });
   }
 })();
+
 
 
 /* ════════════════════════════════

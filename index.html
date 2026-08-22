@@ -4,88 +4,90 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="description" content="Dlovan Parda — Premium curtains, blinds, accessories and custom curtain solutions in Erbil, Kurdistan." />
-  <meta name="theme-color" content="#2C2C2C" />
-  <title>Dlovan Parda — Luxury Curtain Specialists</title>
+  <meta name="theme-color" content="#0E4638" />
+  <title>Dlovan Curtain — Luxury Curtain Specialists</title>
+
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
 
   <!-- Fonts: Latin -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500;600&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Playfair+Display:wght@600;700;800;900&family=Jost:wght@300;400;500;600&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet" />
 
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
   <!-- Styles -->
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=9" />
 </head>
 <body>
 
   <!-- ══════════════════════════════
-       CURTAIN ANIMATION OVERLAY
+       INTRO — CINEMATIC CURTAIN REVEAL
   ══════════════════════════════ -->
-  <div id="curtain-overlay" aria-hidden="true">
+  <div id="intro" aria-hidden="true">
 
-    <div class="c-rod">
-      <span class="c-finial fl"></span>
-      <span class="c-finial fr"></span>
+    <!-- the curtain film, played exactly as supplied -->
+    <video id="intro-video" src="assets/curtain.mp4" poster="assets/curtain-closed.jpg"
+           muted playsinline autoplay preload="auto" disablepictureinpicture></video>
+
+    <!-- Brand lockup over the reveal.
+         Outer element handles the fade-in and centring, inner handles the
+         camera approach, so the two never fight over `transform`. -->
+    <div class="intro-brand">
+      <div class="intro-brand-inner">
+      <svg class="dp-mark" viewBox="0 0 200 230" aria-hidden="true">
+        <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 218 V100 A80 80 0 0 1 180 100 V218" stroke-width="5"/>
+          <path d="M36 218 V100 A64 64 0 0 1 164 100 V218" stroke-width="3"/>
+          <path d="M12 218 H188" stroke-width="5"/>
+          <path d="M46 104 A56 34 0 0 1 154 104" stroke-width="3"/>
+          <path d="M60 104 A42 26 0 0 1 140 104" stroke-width="3"/>
+          <path d="M74 104 A28 17 0 0 1 126 104" stroke-width="3"/>
+        </g>
+        <g fill="none" stroke="var(--logo-accent)" stroke-width="3.6" stroke-linecap="round">
+          <path d="M47 106 C36 140 39 182 50 213"/>
+          <path d="M64 114 C54 148 57 186 68 213"/>
+          <path d="M153 106 C164 140 161 182 150 213"/>
+          <path d="M136 114 C146 148 143 186 132 213"/>
+        </g>
+      </svg>
+      <span class="dp-word">Dlovan</span>
+      <span class="dp-sub">Curtain</span>
+      </div>
     </div>
 
-    <!-- LEFT PANEL -->
-    <div class="c-panel c-left">
-      <div class="c-rings">
-        <span class="c-ring"></span><span class="c-ring"></span><span class="c-ring"></span>
-        <span class="c-ring"></span><span class="c-ring"></span><span class="c-ring"></span>
-        <span class="c-ring"></span><span class="c-ring"></span>
-      </div>
-      <div class="c-pleats">
-        <div class="c-pleat"></div><div class="c-pleat"></div><div class="c-pleat"></div>
-        <div class="c-pleat"></div><div class="c-pleat"></div><div class="c-pleat"></div>
-        <div class="c-pleat"></div><div class="c-pleat"></div>
-        <div class="c-pleats-top-shadow"></div>
-        <div class="c-hem-wrap">
-          <svg viewBox="0 0 200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0,20 C20,5 40,35 60,18 C80,2 100,30 120,15 C140,0 160,28 180,14 C190,7 196,18 200,14 L200,60 L0,60 Z" fill="#1a2421" opacity="1"/>
-          </svg>
-        </div>
-      </div>
-      <div class="c-inner-trim"></div>
-    </div>
+    <button class="intro-skip" id="intro-skip" type="button" data-i18n="intro-skip">Skip</button>
 
-    <!-- RIGHT PANEL -->
-    <div class="c-panel c-right">
-      <div class="c-rings">
-        <span class="c-ring"></span><span class="c-ring"></span><span class="c-ring"></span>
-        <span class="c-ring"></span><span class="c-ring"></span><span class="c-ring"></span>
-        <span class="c-ring"></span><span class="c-ring"></span>
-      </div>
-      <div class="c-pleats">
-        <div class="c-pleat"></div><div class="c-pleat"></div><div class="c-pleat"></div>
-        <div class="c-pleat"></div><div class="c-pleat"></div><div class="c-pleat"></div>
-        <div class="c-pleat"></div><div class="c-pleat"></div>
-        <div class="c-pleats-top-shadow"></div>
-        <div class="c-hem-wrap">
-          <svg viewBox="0 0 200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0,14 C4,7 10,20 20,14 C40,2 60,28 80,15 C100,2 120,30 140,18 C160,5 180,32 200,20 L200,60 L0,60 Z" fill="#1a2421" opacity="1"/>
-          </svg>
-        </div>
-      </div>
-      <div class="c-inner-trim"></div>
-    </div>
-
-  </div>
-
-  <div class="curtain-logo" aria-hidden="true">
-    <span class="cl-name">Dlovan Parda</span>
-    <div class="gold-line"></div>
-    <span class="cl-sub" data-i18n="curtain-sub">Luxury Curtain Specialists</span>
-  </div>
+  </div><!-- /#intro -->
 
 
   <!-- ══════════════════════════════
        NAVBAR
   ══════════════════════════════ -->
   <nav id="navbar" role="navigation" aria-label="Main navigation">
-    <a href="#hero" class="nav-logo">Dlovan <span>Parda</span></a>
+    <a href="#hero" class="nav-logo" aria-label="Dlovan Curtain — home">
+      <svg class="dp-mark" viewBox="0 0 200 230" aria-hidden="true">
+        <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 218 V100 A80 80 0 0 1 180 100 V218" stroke-width="5"/>
+          <path d="M36 218 V100 A64 64 0 0 1 164 100 V218" stroke-width="3"/>
+          <path d="M12 218 H188" stroke-width="5"/>
+          <path d="M46 104 A56 34 0 0 1 154 104" stroke-width="3"/>
+          <path d="M60 104 A42 26 0 0 1 140 104" stroke-width="3"/>
+          <path d="M74 104 A28 17 0 0 1 126 104" stroke-width="3"/>
+        </g>
+        <g fill="none" stroke="var(--logo-accent)" stroke-width="3.6" stroke-linecap="round">
+          <path d="M47 106 C36 140 39 182 50 213"/>
+          <path d="M64 114 C54 148 57 186 68 213"/>
+          <path d="M153 106 C164 140 161 182 150 213"/>
+          <path d="M136 114 C146 148 143 186 132 213"/>
+        </g>
+      </svg>
+      <span class="nav-logo-text">
+        <span class="dp-word">Dlovan</span>
+        <span class="dp-sub">Curtain</span>
+      </span>
+    </a>
 
     <ul class="nav-links" role="list">
       <li><a href="#hero"     data-i18n="nav-home">Home</a></li>
@@ -541,7 +543,28 @@
     <div class="footer-grid">
 
       <div>
-        <span class="footer-logo">Dlovan <span>Parda</span></span>
+        <span class="footer-logo">
+          <svg class="dp-mark" viewBox="0 0 200 230" aria-hidden="true">
+        <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 218 V100 A80 80 0 0 1 180 100 V218" stroke-width="5"/>
+          <path d="M36 218 V100 A64 64 0 0 1 164 100 V218" stroke-width="3"/>
+          <path d="M12 218 H188" stroke-width="5"/>
+          <path d="M46 104 A56 34 0 0 1 154 104" stroke-width="3"/>
+          <path d="M60 104 A42 26 0 0 1 140 104" stroke-width="3"/>
+          <path d="M74 104 A28 17 0 0 1 126 104" stroke-width="3"/>
+        </g>
+        <g fill="none" stroke="var(--logo-accent)" stroke-width="3.6" stroke-linecap="round">
+          <path d="M47 106 C36 140 39 182 50 213"/>
+          <path d="M64 114 C54 148 57 186 68 213"/>
+          <path d="M153 106 C164 140 161 182 150 213"/>
+          <path d="M136 114 C146 148 143 186 132 213"/>
+        </g>
+      </svg>
+          <span class="footer-logo-text">
+            <span class="dp-word">Dlovan</span>
+            <span class="dp-sub">Curtain</span>
+          </span>
+        </span>
         <p class="footer-about" data-i18n="footer-about">
           Erbil's premier destination for luxury curtains, custom blinds, and professional curtain solutions. Bringing elegance to every window since 2009.
         </p>
@@ -614,7 +637,7 @@
     <i class="fas fa-chevron-up"></i>
   </a>
 
-  <script src="script.js"></script>
+  <script src="script.js?v=9"></script>
 
   <script>
     document.querySelectorAll('.gallery-item').forEach(item => {

@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "dlovan-parda",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["serve", "C:\\Users\\rand\\Desktop\\dlovan-parda-website", "-p", "5500", "--no-clipboard"],
+      "runtimeExecutable": "C:\\PROGRA~1\\nodejs\\node.exe",
+      "runtimeArgs": ["serve.js", "5500"],
       "port": 5500
     }
   ]

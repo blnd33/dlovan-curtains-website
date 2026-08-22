@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 230" role="img" aria-label="Dlovan Curtain arched window mark">
+  <!-- window frame -->
+  <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 218 V100 A80 80 0 0 1 180 100 V218" stroke-width="5"/>
+    <path d="M36 218 V100 A64 64 0 0 1 164 100 V218" stroke-width="3"/>
+    <path d="M12 218 H188" stroke-width="5"/>
+  </g>
+
+  <!-- valance: nested swags across the arch -->
+  <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+    <path d="M46 104 A56 34 0 0 1 154 104"/>
+    <path d="M60 104 A42 26 0 0 1 140 104"/>
+    <path d="M74 104 A28 17 0 0 1 126 104"/>
+  </g>
+
+  <!-- curtain panels drawn to the sides, open centre -->
+  <g fill="none" stroke="var(--logo-accent, #0E4638)" stroke-width="3.6" stroke-linecap="round">
+    <path d="M47 106 C36 140 39 182 50 213"/>
+    <path d="M64 114 C54 148 57 186 68 213"/>
+    <path d="M153 106 C164 140 161 182 150 213"/>
+    <path d="M136 114 C146 148 143 186 132 213"/>
+  </g>
+</svg>

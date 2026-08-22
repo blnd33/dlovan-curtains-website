@@ -2,6 +2,13 @@
    VARIABLES & RESET
 ════════════════════════════════ */
 :root {
+  /* ── Brand (from the Dlovan Curtain logo) ── */
+  --green:      #0E4638;   /* logo deep emerald — primary brand colour */
+  --green-deep: #072A21;   /* darkest green, footer / intro ground */
+  --green-lt:   #1A6B55;
+  --citron:     #EFE9B8;   /* logo pale-citron field */
+  --citron-dim: #DED7A0;
+
   --cream:      #F8F3EC;
   --beige:      #E8DDD0;
   --white:      #FDFAF6;
@@ -11,11 +18,14 @@
   --gray:       #5A5A5A;
   --taupe:      #8B7355;
   --brown:      #6B4F35;
-  --shadow:     rgba(44, 44, 44, 0.12);
+  --shadow:     rgba(14, 70, 56, 0.12);
   --ff-serif:   'Cormorant Garamond', Georgia, serif;
+  --ff-logo:    'Playfair Display', 'Cormorant Garamond', Georgia, serif;
   --ff-sans:    'Jost', sans-serif;
   --transition: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   --radius:     4px;
+
+  --logo-accent: var(--green);
 }
 
 *,
@@ -61,314 +71,191 @@ button {
 }
 
 /* ════════════════════════════════
-   CURTAIN ANIMATION  — realistic pleated cloth
+   INTRO — the curtain film plays full frame, exactly as supplied, with the
+   brand lockup over it. When it finishes, the overlay fades to the site.
 ════════════════════════════════ */
 
-#curtain-overlay {
+#intro {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  pointer-events: all;
   overflow: hidden;
-  background: transparent;
+  background: var(--green-deep);
+  /* gentle hand-off, starting the instant the lockup has finished dissolving */
+  transition: opacity 1.1s cubic-bezier(0.33, 0, 0.2, 1), visibility 1.1s linear;
 }
 
-/* ── Curtain rod ── */
-.c-rod {
+#intro.intro-done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Lock the page behind the intro */
+body.intro-active { overflow: hidden; }
+
+/* ── The film ──
+   The camera travels forward through the whole intro, arriving at the
+   centre of frame where the lockup sits just as the site takes over. */
+#intro-video {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 22px;
-  z-index: 10003;
-  background: linear-gradient(180deg,
-    #d0d8d4 0%,
-    #8a9e98 20%,
-    #5a706a 45%,
-    #8a9e98 70%,
-    #d0d8d4 100%
-  );
-  box-shadow: 0 6px 28px rgba(0,0,0,0.9), inset 0 1px 3px rgba(220,240,235,0.4);
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  background: var(--green-deep);
+  transform: scale(1);
+  transform-origin: 50% 50%;
+  will-change: transform;
+  /* runs past the end of the film so the camera is still drifting while the
+     overlay fades — nothing freezes before the site lands */
+  transition: transform 3.4s cubic-bezier(0.25, 0.1, 0.35, 1);
 }
 
-/* Finials (round ends of the rod) */
-.c-finial {
+#intro.intro-rolling #intro-video { transform: scale(2.2); }
+
+@media (prefers-reduced-motion: reduce) {
+  #intro-video { transition: none; }
+  #intro.intro-rolling #intro-video { transform: scale(1); }
+}
+
+/* ── Brand lockup — transparent, sitting directly on the film ── */
+.intro-brand {
   position: absolute;
   top: 50%;
-  transform: translateY(-50%);
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 38% 32%, #e8f0ee, #6a8880 55%, #2a3e3a);
-  box-shadow: 0 4px 14px rgba(0,0,0,0.8), inset 0 2px 4px rgba(200,230,225,0.35);
-  z-index: 10004;
-}
-.c-finial.fl { left:  -10px; }
-.c-finial.fr { right: -10px; }
-
-/* ── Panel wrapper ── */
-.c-panel {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 51%;
+  left: 50%;
+  z-index: 5;
   display: flex;
   flex-direction: column;
-  z-index: 10001;
-  transition: transform 2s cubic-bezier(0.77, 0, 0.18, 1);
+  align-items: center;
+  text-align: center;
+  /* sized so the fully-approached lockup (x1.4) still clears a 375px screen */
+  width: min(66vw, 560px);
+  pointer-events: none;
+  /* brand green, as on the plate — a citron halo carries it over the velvet
+     without putting a solid card behind it */
+  color: var(--green);
+  --logo-accent: var(--green);
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  animation: introBrandIn 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.15s forwards;
+  filter:
+    drop-shadow(0 0 14px rgba(239, 233, 184, 0.85))
+    drop-shadow(0 0 34px rgba(239, 233, 184, 0.6))
+    drop-shadow(0 0 70px rgba(239, 233, 184, 0.4));
+}
+
+@keyframes introBrandIn {
+  from { opacity: 0; transform: translate(-50%, calc(-50% + 18px)); }
+  to   { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+/* the inner block grows as the camera closes on it */
+.intro-brand-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: scale(1);
+  transform-origin: 50% 50%;
   will-change: transform;
+  transition: transform 3.4s cubic-bezier(0.25, 0.1, 0.35, 1);
+}
+
+#intro.intro-rolling .intro-brand-inner { transform: scale(1.4); }
+
+/* dissolves as we arrive — the hand-off is chained off the end of this */
+#intro.intro-reveal .intro-brand {
+  opacity: 0;
+  animation: none;
+  transition: opacity 0.9s cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-brand-inner { transition: none; }
+  #intro.intro-rolling .intro-brand-inner { transform: scale(1); }
+}
+
+.intro-brand .dp-mark {
+  width: clamp(48px, 8.5vw, 82px);
+  height: auto;
+  margin-bottom: clamp(0.6rem, 2vw, 1.05rem);
+}
+
+.intro-brand .dp-word {
+  font-size: clamp(1.9rem, 8vw, 4.6rem);
+  letter-spacing: 0.06em;
+  color: var(--green);
+}
+
+.intro-brand .dp-sub {
+  font-size: clamp(0.55rem, 1.9vw, 0.95rem);
+  letter-spacing: 0.5em;
+  text-indent: 0.5em;
+  color: var(--green);
+  margin-top: clamp(0.45rem, 1.3vw, 0.8rem);
+}
+
+/* ── Skip button ── */
+.intro-skip {
+  position: absolute;
+  bottom: max(clamp(1.1rem, 4vw, 2.4rem), env(safe-area-inset-bottom, 0px));
+  right: max(clamp(1.1rem, 4vw, 2.4rem), env(safe-area-inset-right, 0px));
+  z-index: 7;
+  font-family: var(--ff-sans);
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(239, 233, 184, 0.7);
+  background: rgba(7, 42, 33, 0.45);
+  border: 1px solid rgba(239, 233, 184, 0.26);
+  border-radius: var(--radius);
+  padding: 0.6rem 1.15rem;
+  min-height: 40px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: color var(--transition), border-color var(--transition), background var(--transition);
+}
+
+.intro-skip:hover,
+.intro-skip:focus-visible {
+  color: var(--citron);
+  border-color: rgba(239, 233, 184, 0.55);
+  background: rgba(7, 42, 33, 0.75);
+}
+
+#intro.intro-done .intro-skip { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-brand { animation-duration: 0.01s !important; }
+}
+
+
+
+/* ════════════════════════════════
+   LOGO LOCKUP  — arched-window mark + Dlovan / Curtain wordmark
+════════════════════════════════ */
+.dp-mark {
+  display: block;
+  flex-shrink: 0;
   overflow: visible;
 }
 
-.c-panel.c-left  { left: 0;  transform-origin: left top; }
-.c-panel.c-right { right: 0; transform-origin: right top; }
-
-/* ── Rings row ── */
-.c-rings {
-  position: relative;
-  height: 28px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: flex-end;
-  padding-bottom: 0;
-  z-index: 2;
-}
-
-.c-left  .c-rings { justify-content: flex-start; padding-left: 3%; }
-.c-right .c-rings { justify-content: flex-end;   padding-right: 3%; }
-
-.c-ring {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: 3px solid #7a9e98;
-  background: radial-gradient(circle at 38% 32%, #d8eae6, #5a807a 65%, #1a2e2a);
-  box-shadow: 0 3px 8px rgba(0,0,0,0.7), inset 0 1px 2px rgba(200,230,225,0.3);
-  flex-shrink: 0;
-  margin: 0 clamp(5px, 1.8%, 14px);
-  position: relative;
-}
-
-/* thin hook connecting ring to pleat */
-.c-ring::after {
-  content: '';
-  position: absolute;
-  bottom: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 2px;
-  height: 8px;
-  background: linear-gradient(180deg, #7a9e98, #2a3e3a);
-}
-
-/* ── Pleated fabric body ── */
-.c-pleats {
-  flex: 1;
-  display: flex;
-  flex-direction: row;
-  overflow: hidden;
-  position: relative;
-}
-
-/* Each pleat = one vertical fold of cloth.
-   Light center, dark edges  = cylinder illusion */
-.c-pleat {
-  flex: 1;
-  height: 100%;
-  position: relative;
-  transition: flex 1.8s cubic-bezier(0.77, 0, 0.18, 1);
-}
-
-/* Base fabric colour per pleat — deep forest #1a2421 velvet */
-.c-pleat:nth-child(odd) {
-  background: linear-gradient(90deg,
-    #080e0d 0%,
-    #0f1a18 8%,
-    #1a2421 22%,
-    #2e4440 42%,
-    #3e5e58 50%,
-    #2e4440 58%,
-    #1a2421 78%,
-    #0f1a18 92%,
-    #080e0d 100%
-  );
-}
-.c-pleat:nth-child(even) {
-  background: linear-gradient(90deg,
-    #060c0b 0%,
-    #0d1816 10%,
-    #16201e 25%,
-    #283c38 43%,
-    #345450 50%,
-    #283c38 57%,
-    #16201e 75%,
-    #0d1816 90%,
-    #060c0b 100%
-  );
-}
-
-/* Fabric sheen — subtle cool light catch for velvet effect */
-.c-pleats::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-  background: linear-gradient(110deg,
-    rgba(180,230,220,0.14) 0%,
-    rgba(160,210,200,0.07) 30%,
-    transparent 55%,
-    rgba(0,0,0,0.20) 78%,
-    rgba(0,0,0,0.35) 100%
-  );
-}
-
-/* Vertical shadow stripes between each pleat (depth illusion) */
-.c-pleats::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 2;
-  background: repeating-linear-gradient(90deg,
-    transparent 0%,
-    transparent calc(100% / 8 - 2px),
-    rgba(0,0,0,0.32) calc(100% / 8 - 2px),
-    rgba(0,0,0,0.10) calc(100% / 8)
-  );
-}
-
-/* Top shadow from the rod */
-.c-pleats-top-shadow {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 100px;
-  background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, transparent 100%);
-  pointer-events: none;
-  z-index: 3;
-}
-
-/* ── Natural wavy bottom hem (SVG clip-path) ── */
-.c-hem-wrap {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 60px;
-  pointer-events: none;
-  z-index: 4;
-}
-
-.c-hem-wrap svg {
-  width: 100%;
-  height: 100%;
-}
-
-/* Silver inner-edge trim */
-.c-inner-trim {
-  position: absolute;
-  top: 22px;
-  bottom: 0;
-  width: 5px;
-  z-index: 5;
-  background: linear-gradient(180deg,
-    #c8d8d4 0%,
-    #8aaea8 20%,
-    #5a7874 50%,
-    #8aaea8 80%,
-    #c8d8d4 100%
-  );
-  box-shadow: 0 0 14px rgba(130,180,170,0.4);
-}
-
-.c-left  .c-inner-trim { right: 0; }
-.c-right .c-inner-trim { left: 0; }
-
-/* ── OPEN STATE ── */
-/* Left panel bunches to the left wall */
-body.curtains-open .c-panel.c-left  { transform: translateX(-90%); }
-body.curtains-open .c-panel.c-right { transform: translateX(90%);  }
-body.curtains-open #curtain-overlay  { pointer-events: none; }
-body.curtains-open .curtain-logo     { opacity: 0; pointer-events: none; }
-
-/* Pleats compress (gather) as panel is pulled open.
-   Inner pleats fold first (ripple from center outward) */
-body.curtains-open .c-left .c-pleat:nth-child(8),
-body.curtains-open .c-right .c-pleat:nth-child(1) {
-  flex: 0.15; transition-delay: 0.10s;
-}
-body.curtains-open .c-left .c-pleat:nth-child(7),
-body.curtains-open .c-right .c-pleat:nth-child(2) {
-  flex: 0.18; transition-delay: 0.18s;
-}
-body.curtains-open .c-left .c-pleat:nth-child(6),
-body.curtains-open .c-right .c-pleat:nth-child(3) {
-  flex: 0.20; transition-delay: 0.26s;
-}
-body.curtains-open .c-left .c-pleat:nth-child(5),
-body.curtains-open .c-right .c-pleat:nth-child(4) {
-  flex: 0.20; transition-delay: 0.34s;
-}
-body.curtains-open .c-left .c-pleat:nth-child(4),
-body.curtains-open .c-right .c-pleat:nth-child(5) {
-  flex: 0.22; transition-delay: 0.40s;
-}
-body.curtains-open .c-left .c-pleat:nth-child(3),
-body.curtains-open .c-right .c-pleat:nth-child(6) {
-  flex: 0.22; transition-delay: 0.46s;
-}
-body.curtains-open .c-left .c-pleat:nth-child(2),
-body.curtains-open .c-right .c-pleat:nth-child(7) {
-  flex: 0.25; transition-delay: 0.52s;
-}
-body.curtains-open .c-left .c-pleat:nth-child(1),
-body.curtains-open .c-right .c-pleat:nth-child(8) {
-  flex: 0.28; transition-delay: 0.58s;
-}
-
-/* ── Logo over closed curtains ── */
-.curtain-logo {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 10005;
-  text-align: center;
-  opacity: 1;
-  transition: opacity 0.7s ease 0.5s;
-  width: 90vw;
-  pointer-events: none;
-}
-
-.curtain-logo .cl-name {
+.dp-word {
   display: block;
-  font-family: var(--ff-serif);
-  font-size: clamp(1.6rem, 6vw, 3.8rem);
-  font-weight: 300;
-  color: var(--gold-lt);
-  letter-spacing: 0.35em;
+  font-family: var(--ff-logo);
+  font-weight: 800;
   text-transform: uppercase;
-  text-shadow: 0 2px 28px rgba(0,0,0,0.9), 0 0 60px rgba(201,169,110,0.3);
+  line-height: 1;
 }
 
-.curtain-logo .cl-sub {
+.dp-sub {
   display: block;
-  font-family: var(--ff-sans);
-  font-size: clamp(0.52rem, 1.4vw, 0.72rem);
-  font-weight: 300;
-  letter-spacing: 0.55em;
-  color: rgba(228, 201, 154, 0.7);
-  margin-top: 0.4rem;
-}
-
-.curtain-logo .gold-line {
-  width: 60px;
-  height: 1px;
-  background: var(--gold);
-  margin: 0.9rem auto;
-  opacity: 0.8;
+  font-family: var(--ff-logo);
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 1;
 }
 
 /* ════════════════════════════════
@@ -397,17 +284,39 @@ body.curtains-open .c-right .c-pleat:nth-child(8) {
 }
 
 .nav-logo {
-  font-family: var(--ff-serif);
-  font-size: clamp(1.2rem, 3vw, 1.75rem);
-  font-weight: 400;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   color: var(--white);
-  letter-spacing: 0.1em;
+  --logo-accent: var(--gold);
   flex-shrink: 0;
   transition: color var(--transition);
 }
 
-.nav-logo span { color: var(--gold); }
-#navbar.scrolled .nav-logo { color: var(--charcoal); }
+.nav-logo .dp-mark {
+  width: clamp(26px, 3.4vw, 34px);
+  height: auto;
+}
+
+.nav-logo-text { display: block; }
+
+.nav-logo .dp-word {
+  font-size: clamp(1rem, 2.4vw, 1.32rem);
+  letter-spacing: 0.08em;
+}
+
+.nav-logo .dp-sub {
+  font-size: clamp(0.44rem, 1vw, 0.55rem);
+  letter-spacing: 0.44em;
+  text-indent: 0.44em;
+  color: var(--gold);
+  margin-top: 0.28rem;
+  transition: color var(--transition);
+}
+
+#navbar.scrolled .nav-logo { color: var(--green); }
+#navbar.scrolled .nav-logo { --logo-accent: var(--gold); }
+#navbar.scrolled .nav-logo .dp-sub { color: var(--taupe); }
 
 .nav-links {
   display: flex;
@@ -447,8 +356,8 @@ body.curtains-open .c-right .c-pleat:nth-child(8) {
   font-weight: 500;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--charcoal);
-  background: var(--gold);
+  color: var(--citron);
+  background: var(--green);
   padding: 0.65rem 1.4rem;
   border-radius: var(--radius);
   white-space: nowrap;
@@ -457,9 +366,10 @@ body.curtains-open .c-right .c-pleat:nth-child(8) {
 }
 
 .nav-cta:hover {
-  background: var(--gold-lt);
+  background: var(--green-lt);
+  color: var(--citron);
   transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(201, 169, 110, 0.35);
+  box-shadow: 0 8px 24px rgba(14, 70, 56, 0.38);
 }
 
 /* Hamburger */
@@ -566,9 +476,9 @@ body.curtains-open .c-right .c-pleat:nth-child(8) {
   inset: 0;
   background: linear-gradient(
     135deg,
-    rgba(44, 44, 44, 0.74) 0%,
-    rgba(44, 44, 44, 0.38) 60%,
-    rgba(90, 74, 60, 0.22) 100%
+    rgba(7, 42, 33, 0.80) 0%,
+    rgba(7, 42, 33, 0.42) 60%,
+    rgba(90, 74, 60, 0.24) 100%
   );
 }
 
@@ -734,7 +644,7 @@ section {
   font-weight: 500;
   letter-spacing: 0.38em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--green);
   margin-bottom: 0.85rem;
 }
 
@@ -750,14 +660,14 @@ section {
   font-family: var(--ff-serif);
   font-size: clamp(1.8rem, 4.5vw, 3.2rem);
   font-weight: 300;
-  color: var(--charcoal);
+  color: var(--green-deep);
   line-height: 1.2;
   margin-bottom: 1rem;
 }
 
 .section-title em {
   font-style: italic;
-  color: var(--taupe);
+  color: var(--green-lt);
 }
 
 .section-sub {
@@ -786,7 +696,7 @@ section {
    MARQUEE STRIP
 ════════════════════════════════ */
 .marquee-strip {
-  background: var(--charcoal);
+  background: var(--green);
   padding: 0.9rem 0;
   overflow: hidden;
   white-space: nowrap;
@@ -1079,7 +989,7 @@ section {
 }
 
 .why-card:hover {
-  border-color: var(--gold);
+  border-color: var(--green);
   box-shadow: 0 8px 32px var(--shadow);
   transform: translateY(-4px);
 }
@@ -1087,7 +997,7 @@ section {
 .why-icon {
   width: 50px;
   height: 50px;
-  background: var(--gold);
+  background: var(--green);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -1137,7 +1047,7 @@ section {
 .cta-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(61, 43, 31, 0.9) 0%, rgba(44, 44, 44, 0.78) 100%);
+  background: linear-gradient(135deg, rgba(7, 42, 33, 0.92) 0%, rgba(14, 70, 56, 0.80) 100%);
 }
 
 #cta .inner {
@@ -1195,7 +1105,7 @@ section {
 .contact-icon {
   width: 42px;
   height: 42px;
-  background: var(--gold);
+  background: var(--green);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -1331,8 +1241,8 @@ section {
 .form-group input:focus,
 .form-group textarea:focus,
 .form-group select:focus {
-  border-color: var(--gold);
-  box-shadow: 0 0 0 3px rgba(201, 169, 110, 0.14);
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(14, 70, 56, 0.14);
 }
 
 .form-group textarea {
@@ -1347,8 +1257,8 @@ section {
   font-weight: 500;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--charcoal);
-  background: var(--gold);
+  color: var(--citron);
+  background: var(--green);
   border: none;
   border-radius: var(--radius);
   padding: 1.05rem;
@@ -1357,17 +1267,17 @@ section {
 }
 
 .form-submit:hover {
-  background: var(--gold-lt);
+  background: var(--green-lt);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(201, 169, 110, 0.35);
+  box-shadow: 0 8px 24px rgba(14, 70, 56, 0.35);
 }
 
 /* ════════════════════════════════
    FOOTER
 ════════════════════════════════ */
 footer {
-  background: var(--charcoal);
-  color: rgba(253, 250, 246, 0.6);
+  background: var(--green-deep);
+  color: rgba(248, 243, 236, 0.62);
   padding: clamp(3.5rem, 7vw, 5rem) 5% 2rem;
   width: 100%;
   overflow: hidden;
@@ -1382,16 +1292,31 @@ footer {
 }
 
 .footer-logo {
-  font-family: var(--ff-serif);
-  font-size: clamp(1.4rem, 3vw, 1.8rem);
-  font-weight: 300;
-  color: var(--white);
-  letter-spacing: 0.12em;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--citron);
+  --logo-accent: var(--gold);
   margin-bottom: 1rem;
-  display: block;
 }
 
-.footer-logo span { color: var(--gold); }
+.footer-logo .dp-mark {
+  width: clamp(34px, 5vw, 44px);
+  height: auto;
+}
+
+.footer-logo .dp-word {
+  font-size: clamp(1.25rem, 3vw, 1.6rem);
+  letter-spacing: 0.08em;
+}
+
+.footer-logo .dp-sub {
+  font-size: clamp(0.5rem, 1.2vw, 0.62rem);
+  letter-spacing: 0.46em;
+  text-indent: 0.46em;
+  color: var(--gold);
+  margin-top: 0.32rem;
+}
 
 .footer-about {
   font-size: 0.88rem;
@@ -1737,8 +1662,10 @@ html[dir="rtl"] body {
   font-family: 'Tajawal', sans-serif;
 }
 
-/* Curtain logo text */
-html[dir="rtl"] .curtain-logo .cl-sub {
+/* The logo lockup is a wordmark — it stays Latin in both languages */
+html[dir="rtl"] .intro-skip {
+  right: auto;
+  left: clamp(1.2rem, 4vw, 2.4rem);
   letter-spacing: 0.1em;
 }
 
